@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ターン制戦闘ゲーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .field {
+            display: grid;
+            grid-template-columns: repeat(6, 50px);
+            grid-gap: 5px;
+            margin: 20px auto;
+            width: max-content;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .player {
+            color: blue;
+        }
+        .enemy {
+            color: red;
+        }
+        button.buttons {
+            width: auto;
+            padding:0;
+            margin:0;
+            background:none;
+            border:0;
+            font-size:0;
+            line-height:0;
+            overflow:visible;
+            cursor:pointer;
+        }
+        button#up {
+            position: relative;
+            top: 0px;
+            right: 73px;
+        }
+        button#left {
+            position: relative;
+            bottom: 20px;
+            right: 69px;
+        }
+        button#right {
+            position: relative;
+            bottom: 20px;
+            right: 23px;
+        }
+        button#down {
+            position: relative;
+            bottom: 40px;
+            right: 73px;
+        }
+        button#fup {
+            position: relative;
+            top: 0px;
+            left: 73px;
+        }
+        button#fleft {
+            position: relative;
+            bottom: 20px;
+            left: 23px;
+        }
+        button#fright {
+            position: relative;
+            bottom: 20px;
+            left: 69px;
+        }
+        button#fdown {
+            position: relative;
+            bottom: 40px;
+            left: 73px;
+        }
+        button#attack {
+            position: relative;
+            top: 0px;
+            right: 100px;
+        }
+        button#fire {
+            position: relative;
+            top: 0px;
+            right: 50px;
+        }
+        button#heal {
+            position: relative;
+            top: 0px;
+            right: 0px;
+        }
+        button#fastmove {
+            position: relative;
+            top: 0px;
+            left: 50px;
+        }
+
+    </style>
+    </head>
+<body>
+    <h1>ターン制戦闘ゲーム</h1>
+    <div id="game-field" class="field"></div>
+    <p>プレイヤー HP: <span id="player-hp">100</span>,MP: <span id="player-mp">100</span></p>
+    <p>敵 HP: <span id="enemy-hp">100</span>,MP: <span id="enemy-mp">100</span></p>
+    <p>
+        <button class="buttons" id="up" onclick="movePlayer('up')"><img src="./Up.png" alt="UP" style="height: 50px;width: 50px;"></button>
+        <button class="buttons" id="fup" onclick="facing('up')"><img src="./F_Up.png" alt="LEFT" style="height: 50px;width: 50px;"></button>
+    </p>
+    <p>
+        <button class="buttons" id="left" onclick="movePlayer('left')"><img src="./Left.png" alt="LEFT" style="height: 50px;width: 50px;"></button>
+        <button class="buttons" id="right" onclick="movePlayer('right')"><img src="./Right.png" alt="RIGHT" style="height: 50px;width: 50px;"></button>
+        <button class="buttons" id="fleft" onclick="facing('left')"><img src="./F_Left.png" alt="LEFT" style="height: 50px;width: 50px;"></button>
+        <button class="buttons" id="fright" onclick="facing('right')"><img src="./F_Right.png" alt="LEFT" style="height: 50px;width: 50px;"></button>
+    </p>
+    <p>
+        <button class="buttons" id="down" onclick="movePlayer('down')"><img src="./Down.png" alt="DOWN" style="height: 50px;width: 50px;"></button>
+        <button class="buttons" id="fdown" onclick="facing('down')"><img src="./F_Down.png" alt="LEFT" style="height: 50px;width: 50px;"></button>
+    </p>
+    <p>
+        <button class="buttons" id="attack" onclick="attack()"><img src="./attack.png" alt="LEFT" style="height: 50px;width: 100px;"></button>
+        <button class="buttons" id="fire" onclick="fire()"><img src="./fire.png" alt="FIRE" style="height: 50px;width: 100px;"></button>
+        <button class="buttons" id="heal" onclick="heal()"><img src="./heal.png" alt="HEAL" style="height: 50px;width: 100px;"></button>
+        <button class="buttons" id="fastmove" onclick="fastmove()"><img src="./fastmove.png" alt="HEAL" style="height: 50px;width: 100px;"></button>
+    </p>
+    <script>
+        const rows = 4;
+        const cols = 6;
+        let player = { x: 0, y: 0, hp: 100, mp: 100, direction: 'right' };
+        let enemy = { x: 5, y: 3, hp: 100, mp:100, direction: 'left' };
+
+        const field = document.getElementById('game-field');
+
+        function renderField() {
+            field.innerHTML = '';
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    if (player.x === x && player.y === y) {
+                        cell.textContent = '\u25BA'; //facing right
+                        if (player.direction === 'left') cell.textContent = '\u25C4'; //facing left
+                        if (player.direction === 'up') cell.textContent = '\u25B2'; //facing up
+                        if (player.direction === 'down') cell.textContent = '\u25BC'; //facing down
+                        cell.classList.add('player');
+                    } else if (enemy.x === x && enemy.y === y) {
+                        cell.textContent = '\u25C4'; //facing left
+                        if (enemy.direction === 'right') cell.textContent = '\u25BA'; //facing right
+                        if (enemy.direction === 'up') cell.textContent = '\u25B2'; //facing up
+                        if (enemy.direction === 'down') cell.textContent = '\u25BC'; //facing down
+                        cell.classList.add('enemy');
+                    }
+                    field.appendChild(cell);
+                }
+            }
+        }
+        function facing(direction) {
+            player.direction = direction
+            renderField();
+        }
+
+        function movePlayer(direction) {
+            enemyAction();
+            if (direction === 'up' && player.y > 0) player.y--;
+            if (direction === 'down' && player.y < rows - 1) player.y++;
+            if (direction === 'left' && player.x > 0) player.x--;
+            if (direction === 'right' && player.x < cols - 1) player.x++;
+            player.mp = player.mp + 5;
+            playermpcheck();
+            document.getElementById('player-mp').textContent = player.mp;
+            renderField();
+        }
+
+        function attack() {
+            if (
+                (player.direction === 'up' && player.x === enemy.x && player.y - 1 === enemy.y) ||
+                (player.direction === 'down' && player.x === enemy.x && player.y + 1 === enemy.y) ||
+                (player.direction === 'left' && player.x - 1 === enemy.x && player.y === enemy.y) ||
+                (player.direction === 'right' && player.x + 1 === enemy.x && player.y === enemy.y)
+            ) {
+                enemy.hp = enemy.hp - 5;
+                document.getElementById('enemy-hp').textContent = enemy.hp;
+                if (enemy.hp <= 0) alert('You win!');
+            }
+            enemyAction();
+            renderField();
+        }
+        function fire() {
+            if(player.mp >= 20){
+            if (
+                (player.direction === 'up' && player.x === enemy.x && player.y - 1 === enemy.y) ||
+                (player.direction === 'down' && player.x === enemy.x && player.y + 1 === enemy.y) ||
+                (player.direction === 'left' && player.x - 1 === enemy.x && player.y === enemy.y) ||
+                (player.direction === 'right' && player.x + 1 === enemy.x && player.y === enemy.y)
+            ) {
+                enemy.hp = enemy.hp - 10;
+                document.getElementById('enemy-hp').textContent = enemy.hp;
+                if (enemy.hp <= 0) alert('You win!');
+            }
+            player.mp = player.mp - 20;
+            document.getElementById('player-mp').textContent = player.mp;
+            enemyAction();
+            renderField();
+        }
+    }
+        function heal(){
+            if(player.mp >= 30){
+            player.hp = player.hp + 10;
+            playerhpcheck();
+            player.mp = player.mp - 30;
+            document.getElementById('player-hp').textContent = player.hp;
+            document.getElementById('player-mp').textContent = player.mp;
+            }
+        }
+        function fastmove() {
+            if(player.mp >= 10)
+            if (player.direction === 'up') player.y = player.y - 3;
+            if (player.direction === 'down') player.y = player.y + 3;
+            if (player.direction === 'right') player.x = player.x + 3;
+            if (player.direction === 'left') player.x = player.x - 3;
+            playerpositioncheck()
+            player.mp = player.mp - 10;
+            document.getElementById('player-mp').textContent = player.mp;
+            enemyAction();
+            renderField();
+        }
+
+        function enemyAction() {
+            if (
+                Math.abs(player.x - enemy.x) + Math.abs(player.y - enemy.y) === 1
+            ) {
+                if(enemy.hp > 30){
+                if(enemy.y < player.y){
+                    enemy.direction = 'down';
+                }
+                if(enemy.y > player.y){
+                    enemy.direction = 'up';
+                }
+                if(enemy.x < player.x){
+                    enemy.direction = 'right';
+                }
+                if(enemy.x > player.x){
+                    enemy.direction = 'left';
+                }
+                if(enemy.mp >= 10){
+                    player.hp = player.hp - 10;
+                    enemy.mp = enemy.mp - 10;
+                    document.getElementById('player-hp').textContent = player.hp;
+                    document.getElementById('enemy-mp').textContent = enemy.mp;
+                }else{
+                    player.hp = player.hp - 5;
+                    document.getElementById('player-hp').textContent = player.hp;
+                }
+                if (player.hp <= 0) alert('Game Over!');
+                }
+                else{
+                    if(enemy.mp >= 30){
+                        enemy.hp = enemy.hp + 10;
+                        document.getElementById('enemy-hp').textContent = enemy.hp;
+                        enemy.mp = enemy.mp - 30;
+                        document.getElementById('enemy-mp').textContent = enemy.mp;
+                    }
+                    enemy.mp = enemy.mp + 5;
+                    enemympcheck();
+                    document.getElementById('enemy-mp').textContent = enemy.mp;
+                if(player.y < enemy.y){
+                    if(enemy.y + 1 > 3){
+                        if(enemy.x + 1 > 5) enemy.x--;
+                        if(enemy.x - 1 < 0) enemy.x++;
+                    }
+                    enemy.y++;
+                    enemypositioncheck()
+                    return;
+                }
+                if(player.y > enemy.y){
+                    if(enemy.y - 1 < 0){
+                        if(enemy.x + 1 > 5) enemy.x--;
+                        if(enemy.x - 1 < 0) enemy.x++;
+                    }
+                    enemy.y--;
+                    enemypositioncheck()
+                    return;
+                }
+                if(player.x < enemy.x){
+                    if(enemy.x + 1 > 5){
+                        if(enemy.y + 1 > 3) enemy.y--;
+                        if(enemy.y - 1 < 0) enemy.y++;
+                    }
+                    enemy.x++;
+                    enemypositioncheck()
+                    return;
+                }
+                if(player.x > enemy.x){
+                    enemy.x--;
+                    enemypositioncheck()
+                    return;
+                }
+                }
+            }
+                else {
+                enemy.mp = enemy.mp + 5;
+                enemympcheck();
+                document.getElementById('enemy-mp').textContent = enemy.mp;
+                if(player.y < enemy.y){
+                    enemy.y--;
+                    return;
+                }
+                if(player.y > enemy.y){
+                    enemy.y++;
+                    return;
+                }
+                if(player.x < enemy.x){
+                    enemy.x--;
+                    return;
+                }
+                if(player.x > enemy.x){
+                    enemy.x++;
+                    return;
+                }
+            }
+            }
+
+        renderField();
+        
+        function playermpcheck() {
+            if(player.mp > 100){
+                player.mp = 100;
+            }
+        }
+        function enemympcheck() {
+            if(enemy.mp > 100){
+                enemy.mp = 100;
+            }
+        }
+        function playerhpcheck() {
+            if(player.hp > 100){
+                player.hp = 100;
+            }
+        }
+        function playerpositioncheck() {
+            if(player.x > 5) player.x = 5;
+            if(player.x < 0) player.x = 0;
+            if(player.y > 3) player.y = 3;
+            if(player.y < 0) player.y = 0;
+        }
+        function enemypositioncheck() {
+            if(enemy.x > 5) enemy.x = 5;
+            if(enemy.x < 0) enemy.x = 0;
+            if(enemy.y > 3) enemy.y = 3;
+            if(enemy.y < 0) enemy.y = 0;
+        }
+    </script>
+</body>
+</html>
