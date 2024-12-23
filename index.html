@@ -204,6 +204,7 @@
                 enemy.hp = enemy.hp - 5;
                 document.getElementById('enemy-hp').textContent = enemy.hp;
                 if (enemy.hp <= 0) alert('You win!');
+                visiblereset();
             }
             enemyAction();
             renderField();
@@ -219,6 +220,7 @@
                 enemy.hp = enemy.hp - 10;
                 document.getElementById('enemy-hp').textContent = enemy.hp;
                 if (enemy.hp <= 0) alert('You win!');
+                visiblereset();
             }
             player.mp = player.mp - 20;
             document.getElementById('player-mp').textContent = player.mp;
@@ -275,6 +277,7 @@
                     document.getElementById('player-hp').textContent = player.hp;
                 }
                 if (player.hp <= 0) alert('Game Over!');
+                    visiblereset();
                 }
                 else{
                     if(enemy.mp >= 30){
