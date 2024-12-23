@@ -86,7 +86,7 @@
         button#attack {
             position: relative;
             top: 0px;
-            right: 100px;
+            right: 0px;
         }
         button#fire {
             position: relative;
@@ -102,6 +102,16 @@
             position: relative;
             top: 0px;
             left: 50px;
+        }
+        button#resetbutton {
+            position: relative;
+            font-size: 40px;
+            color: white;
+            height: 100px;
+            width: 200px;
+            background-color: red;
+            outline-color: black;
+            visibility: hidden;
         }
 
     </style>
@@ -127,9 +137,14 @@
     </p>
     <p>
         <button class="buttons" id="attack" onclick="attack()"><img src="./attack.png" alt="LEFT" style="height: 50px;width: 100px;"></button>
+    </p>
+    <p>
         <button class="buttons" id="fire" onclick="fire()"><img src="./fire.png" alt="FIRE" style="height: 50px;width: 100px;"></button>
         <button class="buttons" id="heal" onclick="heal()"><img src="./heal.png" alt="HEAL" style="height: 50px;width: 100px;"></button>
         <button class="buttons" id="fastmove" onclick="fastmove()"><img src="./fastmove.png" alt="HEAL" style="height: 50px;width: 100px;"></button>
+    </p>
+     <p>
+        <button id="resetbutton" onclick="reset()">リセット</button>
     </p>
     <script>
         const rows = 4;
@@ -356,6 +371,52 @@
             if(enemy.x < 0) enemy.x = 0;
             if(enemy.y > 3) enemy.y = 3;
             if(enemy.y < 0) enemy.y = 0;
+        }
+        function visiblereset() {
+            document.getElementById("resetbutton").style.visibility="visible";
+            document.getElementById("up").style.visibility="hidden"
+            document.getElementById("fup").style.visibility="hidden"
+            document.getElementById("right").style.visibility="hidden"
+            document.getElementById("fright").style.visibility="hidden"
+            document.getElementById("down").style.visibility="hidden"
+            document.getElementById("fdown").style.visibility="hidden"
+            document.getElementById("left").style.visibility="hidden"
+            document.getElementById("fleft").style.visibility="hidden"
+            document.getElementById("attack").style.visibility="hidden"
+            document.getElementById("fire").style.visibility="hidden"
+            document.getElementById("heal").style.visibility="hidden"
+            document.getElementById("fastmove").style.visibility="hidden"
+            document.getElementById("player-hp").style.visibility="hidden"
+            document.getElementById("player-mp").style.visibility="hidden"
+            document.getElementById("enemy-hp").style.visibility="hidden"
+            document.getElementById("enemy-mp").style.visibility="hidden"
+        }
+        function reset() {
+            player = { x: 0, y: 0, hp: 100, mp: 100, direction: 'right' };
+            enemy = { x: 5, y: 3, hp: 100, mp:100, direction: 'left' };
+            document.getElementById("up").style.visibility="visible"
+            document.getElementById("fup").style.visibility="visible"
+            document.getElementById("right").style.visibility="visible"
+            document.getElementById("fright").style.visibility="visible"
+            document.getElementById("down").style.visibility="visible"
+            document.getElementById("fdown").style.visibility="visible"
+            document.getElementById("left").style.visibility="visible"
+            document.getElementById("fleft").style.visibility="visible"
+            document.getElementById("attack").style.visibility="visible"
+            document.getElementById("fire").style.visibility="visible"
+            document.getElementById("heal").style.visibility="visible"
+            document.getElementById("fastmove").style.visibility="visible"
+            ocument.getElementById("player-hp").style.visibility="visible"
+            document.getElementById("player-mp").style.visibility="visible"
+            document.getElementById("enemy-hp").style.visibility="visible"
+            document.getElementById("enemy-mp").style.visibility="visible"
+            document.getElementById('player-hp').textContent = player.hp;
+            document.getElementById('player-mp').textContent = player.mp;
+            document.getElementById('enemy-hp').textContent = enemy.hp;
+            document.getElementById('enemy-mp').textContent = enemy.mp;
+            document.getElementById("resetbutton").style.visibility="hidden";
+            renderField();
+
         }
     </script>
 </body>
